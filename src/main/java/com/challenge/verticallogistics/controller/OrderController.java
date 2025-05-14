@@ -4,6 +4,7 @@ import com.challenge.verticallogistics.dto.request.DateRangeRequest;
 import com.challenge.verticallogistics.dto.response.UserOrdersResponse;
 import com.challenge.verticallogistics.service.OrderProcessingService;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -24,7 +25,7 @@ public class OrderController {
 
     private final OrderProcessingService orderProcessingService;
 
-    @PostMapping("/upload")
+    @PostMapping(value = "/upload", consumes = "multipart/form-data")
     @Operation(
             summary = "Carregar e processar arquivo de pedidos",
             description = "Carrega um arquivo contendo dados de pedidos em formato de largura fixa e retorna os pedidos processados e normalizados"
@@ -34,10 +35,14 @@ public class OrderController {
             description = "Pedidos processados com sucesso",
             content = @Content(mediaType = "application/json", schema = @Schema(implementation = UserOrdersResponse.class))
     )
-    public ResponseEntity<List<UserOrdersResponse>> uploadFile(@RequestParam("file") MultipartFile file) {
+    public ResponseEntity<List<UserOrdersResponse>> uploadFile(
+            @Parameter(description = "Arquivo de pedidos", required = true)
+            @RequestParam("file") MultipartFile file
+    ) {
         List<UserOrdersResponse> response = orderProcessingService.processOrderFile(file);
         return ResponseEntity.ok(response);
     }
+
 
     @GetMapping
     @Operation(
